@@ -17,5 +17,5 @@ jobs:
       - run: pip install -r requirements.txt
       - run: cp profiles.yml.example profiles.yml
       - run: dbt deps --profiles-dir .
+      - run: dbt seed --full-refresh --profiles-dir .
       - run: dbt build --profiles-dir .
-

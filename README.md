@@ -34,6 +34,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 cp profiles.yml.example profiles.yml
 dbt deps --profiles-dir .
+dbt seed --full-refresh --profiles-dir .
 dbt build --profiles-dir .
 dbt docs generate --profiles-dir .
 dbt docs serve --profiles-dir .
