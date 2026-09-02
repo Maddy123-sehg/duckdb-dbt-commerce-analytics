@@ -2,6 +2,8 @@
 
 A portfolio-sized analytics engineering project for a commerce team that needs trusted customer and order KPIs. It demonstrates layered SQL transformations, data quality tests, lineage, documentation, and a dbt Semantic Layer contract—all running locally with DuckDB.
 
+[![dbt CI](https://github.com/Maddy123-sehg/duckdb-dbt-commerce-analytics/actions/workflows/dbt-ci.yml/badge.svg)](https://github.com/Maddy123-sehg/duckdb-dbt-commerce-analytics/actions/workflows/dbt-ci.yml)
+
 ## Business use case
 
 Sales and finance need one consistent answer for completed revenue, gross profit, order volume, and average order value. Raw customers, order headers, and line items are cleaned in staging, joined and aggregated in an intermediate layer, and exposed as dimensional marts plus governed metrics.
@@ -30,6 +32,8 @@ Requires Python 3.10+.
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+cp profiles.yml.example profiles.yml
+dbt deps --profiles-dir .
 dbt build --profiles-dir .
 dbt docs generate --profiles-dir .
 dbt docs serve --profiles-dir .
@@ -52,4 +56,7 @@ Semantic definitions are included for dbt environments that support the dbt Sema
 - The intermediate model is ephemeral to demonstrate modular logic without creating an extra relation.
 - Marts use fact/dimension grains suitable for BI tools and ad hoc analysis.
 - Tests cover keys, relationships, accepted values, nulls, and a domain rule.
-
+- `fct_order_activity_incremental` demonstrates idempotent incremental processing.
+- `customers_snapshot` preserves SCD Type 2 customer changes.
+- The `safe_divide` macro centralizes defensive ratio logic.
+- Pull requests run the complete project through GitHub Actions.

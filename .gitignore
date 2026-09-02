@@ -6,3 +6,4 @@ dbt_packages/
 *.duckdb.wal
 .DS_Store
 .user.yml
+profiles.yml

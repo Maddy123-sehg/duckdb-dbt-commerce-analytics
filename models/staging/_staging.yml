@@ -4,37 +4,73 @@ models:
     description: Clean, typed customer records.
     columns:
       - name: customer_id
+        description: Stable customer identifier from the source application.
         tests: [not_null, unique]
+      - name: customer_name
+        description: Display name for the customer organization.
       - name: customer_segment
+        description: Commercial segment used for reporting.
         tests:
           - accepted_values:
               arguments:
                 values: ['SMB', 'Mid-Market', 'Enterprise']
+      - name: signup_date
+        description: Date the customer first registered.
+      - name: updated_at
+        description: Source-system modification timestamp used by the SCD snapshot.
+      - name: ingested_at
+        description: Timestamp when the extract landed in the raw layer.
   - name: stg_orders
     description: Clean, typed order headers at one row per order.
     columns:
       - name: order_id
+        description: Unique order identifier.
         tests: [not_null, unique]
       - name: customer_id
+        description: Customer who placed the order.
         tests:
           - relationships:
               arguments:
                 to: ref('stg_customers')
                 field: customer_id
       - name: order_status
+        description: Normalized order lifecycle status.
         tests:
           - accepted_values:
               arguments:
                 values: ['completed', 'returned', 'cancelled']
+      - name: order_date
+        description: Calendar date on which the order was placed.
+      - name: currency
+        description: ISO currency code for order amounts.
+      - name: ingested_at
+        description: Timestamp when the extract landed in the raw layer.
   - name: stg_order_items
     description: Clean, typed order line items.
     columns:
       - name: order_item_id
+        description: Unique order-line identifier.
         tests: [not_null, unique]
       - name: order_id
+        description: Parent order identifier.
         tests:
           - relationships:
               arguments:
                 to: ref('stg_orders')
                 field: order_id
-
+      - name: product_id
+        description: Product purchased on the order line.
+      - name: quantity
+        description: Number of units purchased.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments: {min_value: 1, strictly: false}
+      - name: unit_price
+        description: Selling price per unit.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments: {min_value: 0, strictly: true}
+      - name: unit_cost
+        description: Cost of goods per unit.
+      - name: ingested_at
+        description: Timestamp when the extract landed in the raw layer.

@@ -6,6 +6,7 @@ models:
       standard_granularity_column: date_day
     columns:
       - name: date_day
+        description: Calendar date at daily granularity.
         granularity: day
         tests: [not_null, unique]
   - name: dim_customers
@@ -14,21 +15,84 @@ models:
       - name: customer_id
         description: Stable customer key.
         tests: [not_null, unique]
+      - name: customer_name
+        description: Customer organization name.
+      - name: customer_segment
+        description: Current commercial segment.
+      - name: signup_date
+        description: Customer registration date.
+      - name: first_order_date
+        description: First completed order date.
+      - name: latest_order_date
+        description: Most recent completed order date.
   - name: fct_orders
     description: Order-grain fact table with recognized financial measures.
     columns:
       - name: order_id
+        description: Primary key at the order grain.
         tests: [not_null, unique]
       - name: customer_id
+        description: Foreign key to the customer dimension.
         tests:
           - relationships:
               arguments:
                 to: ref('dim_customers')
                 field: customer_id
       - name: gross_revenue
+        description: Revenue before order-status recognition rules.
         tests: [not_null]
+      - name: order_date
+        description: Date the order was placed.
+      - name: order_month
+        description: Month bucket for time-series analysis.
+      - name: order_status
+        description: Normalized order status.
+      - name: units
+        description: Total units on the order.
+      - name: cost_of_goods
+        description: Total product cost on the order.
+      - name: gross_profit
+        description: Gross revenue less cost of goods.
+      - name: recognized_revenue
+        description: Revenue included only for completed orders.
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments: {min_value: 0, strictly: false}
+      - name: recognized_gross_profit
+        description: Gross profit included only for completed orders.
   - name: customer_performance
     description: BI-ready customer performance summary.
     columns:
       - name: customer_id
+        description: Customer grain primary key.
         tests: [not_null, unique]
+      - name: customer_name
+        description: Customer organization name.
+      - name: customer_segment
+        description: Current commercial segment.
+      - name: completed_orders
+        description: Count of completed orders.
+      - name: lifetime_revenue
+        description: Completed-order revenue across the customer lifetime.
+      - name: lifetime_gross_profit
+        description: Completed-order gross profit across the customer lifetime.
+      - name: average_order_value
+        description: Lifetime revenue divided by completed order count.
+  - name: fct_order_activity_incremental
+    description: Incrementally maintained order activity for downstream operational reporting.
+    columns:
+      - name: order_id
+        description: Unique order identifier and incremental merge key.
+        tests: [not_null, unique]
+      - name: customer_id
+        description: Customer associated with the order.
+      - name: order_date
+        description: Date used as the incremental watermark.
+      - name: order_status
+        description: Current order lifecycle status.
+      - name: recognized_revenue
+        description: Revenue recognized for completed orders.
+      - name: recognized_gross_profit
+        description: Gross profit recognized for completed orders.
+      - name: dbt_loaded_at
+        description: Timestamp at which dbt last processed the record.
