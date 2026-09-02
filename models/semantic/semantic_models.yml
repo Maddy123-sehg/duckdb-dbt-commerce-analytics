@@ -1,0 +1,61 @@
+version: 2
+semantic_models:
+  - name: orders
+    description: Business-facing order metrics with consistent time and customer dimensions.
+    model: ref('fct_orders')
+    defaults:
+      agg_time_dimension: order_date
+    entities:
+      - name: order
+        type: primary
+        expr: order_id
+      - name: customer
+        type: foreign
+        expr: customer_id
+    dimensions:
+      - name: order_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: order_status
+        type: categorical
+    measures:
+      - name: order_count
+        description: Number of orders.
+        agg: count_distinct
+        expr: order_id
+      - name: recognized_revenue
+        description: Revenue from completed orders only.
+        agg: sum
+      - name: recognized_gross_profit
+        description: Gross profit from completed orders only.
+        agg: sum
+metrics:
+  - name: total_revenue
+    description: Completed-order revenue.
+    type: simple
+    label: Total Revenue
+    type_params:
+      measure: recognized_revenue
+  - name: total_gross_profit
+    description: Completed-order gross profit.
+    type: simple
+    label: Total Gross Profit
+    type_params:
+      measure: recognized_gross_profit
+  - name: completed_order_count
+    description: Completed order volume.
+    type: simple
+    label: Completed Orders
+    filter: |
+      {{ Dimension('order__order_status') }} = 'completed'
+    type_params:
+      measure: order_count
+  - name: average_order_value
+    description: Revenue per completed order.
+    type: ratio
+    label: Average Order Value
+    type_params:
+      numerator: total_revenue
+      denominator: completed_order_count
+

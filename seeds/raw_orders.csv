@@ -1,0 +1,10 @@
+order_id,customer_id,order_date,status,currency
+1001,1,2025-01-03,completed,USD
+1002,2,2025-01-08,completed,USD
+1003,1,2025-02-11,returned,USD
+1004,3,2025-02-15,completed,USD
+1005,4,2025-03-02,cancelled,USD
+1006,2,2025-03-18,completed,USD
+1007,5,2025-04-04,completed,USD
+1008,1,2025-04-20,completed,USD
+

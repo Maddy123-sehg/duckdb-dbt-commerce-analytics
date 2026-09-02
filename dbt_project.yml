@@ -1,0 +1,20 @@
+name: commerce_analytics
+version: 1.0.0
+config-version: 2
+profile: commerce_analytics
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+clean-targets: ["target", "dbt_packages"]
+models:
+  commerce_analytics:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: ephemeral
+    marts:
+      +materialized: table
+seeds:
+  commerce_analytics:
+    +schema: raw
+

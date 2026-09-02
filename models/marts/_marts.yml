@@ -1,0 +1,34 @@
+version: 2
+models:
+  - name: metricflow_time_spine
+    description: Daily calendar spine used by the dbt Semantic Layer.
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        granularity: day
+        tests: [not_null, unique]
+  - name: dim_customers
+    description: Customer dimension enriched with lifecycle dates.
+    columns:
+      - name: customer_id
+        description: Stable customer key.
+        tests: [not_null, unique]
+  - name: fct_orders
+    description: Order-grain fact table with recognized financial measures.
+    columns:
+      - name: order_id
+        tests: [not_null, unique]
+      - name: customer_id
+        tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: gross_revenue
+        tests: [not_null]
+  - name: customer_performance
+    description: BI-ready customer performance summary.
+    columns:
+      - name: customer_id
+        tests: [not_null, unique]

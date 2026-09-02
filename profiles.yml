@@ -1,0 +1,9 @@
+commerce_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: dev.duckdb
+      schema: analytics
+      threads: 4
+
